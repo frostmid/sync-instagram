@@ -84,9 +84,9 @@ _.extend (module.exports.prototype, {
 				return self.post (url).then(function (entry) {
 					return self.get('/' + (entry.id || entry))
 						.then(function (entry) {
-							entry.ancestor = 'https://www.facebook.com/' + objectId;
+							entry.ancestor = entry.id;
 							entry.issue = issue;
-							self.entry (entry, 'comment');
+							return self.entry (entry, 'comment');
 						});
 				});
 			});
