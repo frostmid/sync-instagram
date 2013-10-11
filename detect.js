@@ -4,5 +4,9 @@ function (url, callback) {
   
   	callback (url);
 
-  	return ['urn:fos:sync:feature/fb1b28d0321511e3be1c394bd9f8d2fc'];
+  	if (url.match (/e/)) {
+  		return ['urn:fos:sync:feature/fb1b28d0321511e3be1c394bd9f8d2fc'];
+  	} else {
+  		
+  	}
 };

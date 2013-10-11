@@ -15,7 +15,7 @@ var parse = {
 		}
 
 		return {
-			'url': 'https://www.instagram.com/' + entry.username + '#' + entry.id,
+			'url': 'http://statigr.am/' + entry.username,
 			'entry-type': 'urn:fos:sync:entry-type/3292fd10321611e3be1c394bd9f8d2fc',
 			'first-name': entry.full_name,
 			'nickname': entry.username,
@@ -25,22 +25,57 @@ var parse = {
 		}
 	},
 
-
-	'photo': function (entry) {
+	'tag': function (entry) {
 		return {
-			'entry-type': 'urn:fos:sync:entry-type/93b79c40321611e3be1c394bd9f8d2fc'
+			'url': 'http://statigr.am/tag/' + entry.tag,
+			'entry-type': 'urn:fos:sync:entry-type/c9256fb0321611e3be1c394bd9f8d2fc'
+			'title': entry.tag
 		}
 	},
 
-	'tag': function (entry) {
+	'image': function (entry) {
 		return {
-			'entry-type': 'urn:fos:sync:entry-type/c9256fb0321611e3be1c394bd9f8d2fc'
+			'url': 'http://statigr.am/p/' + entry.id,
+			'entry-type': 'urn:fos:sync:entry-type/93b79c40321611e3be1c394bd9f8d2fc',
+			'author': 'http://statigr.am/' + entry.user.username,
+			'content': (entry.caption && entry.caption.text) ? entry.caption.text : null,
+			'created_at': entry.created_time,
+			'attached': {
+				'photos': [entry.images.thumbnail.url]
+			},
+			'metrics': {
+				'comments': entry.comments.count,
+				'likes': entry.likes.count
+			}
+			//'show-url': entry.link
+		}
+	},
+
+	'video': function (entry) {
+		return {
+			'url': 'http://statigr.am/p/' + entry.id,
+			'entry-type': 'urn:fos:sync:entry-type/28dd0a60326411e38d94a7656a4e4a0a',
+			'author': 'http://statigr.am/' + entry.user.username,
+			'content': (entry.caption && entry.caption.text) ? entry.caption.text : null,
+			'created_at': entry.created_time,
+			'attached': {
+				'video': [entry.videos.standard_resolution.url]
+			},
+			'metrics': {
+				'comments': entry.comments.count,
+				'likes': entry.likes.count
+			}
+			//'show-url': entry.link
 		}
 	},
 
 	'comment': function (entry) {
 		return {
-			'entry-type': 'urn:fos:sync:entry-type/dd161c90321611e3be1c394bd9f8d2fc'
+			'entry-type': 'urn:fos:sync:entry-type/dd161c90321611e3be1c394bd9f8d2fc',
+			'author': 'http://statigr.am/' + entry.from.username,
+			'ancestor': 'http://statigr.am/p/' + entry.ancestor,
+			'content': entry.text || null,
+			'created_at': entry.created_time
 		}
 	}
 };
@@ -65,7 +100,7 @@ function instagram (slave, task, preEmit) {
 	title: 'instagram api',
 	version: '0.0.1'
 }))
-	.use ('urn:fos:sync:feature/8086b260321511e3be1c394bd9f8d2fc', function getUser (task) {
+	.use ('urn:fos:sync:feature/8086b260321511e3be1c394bd9f8d2fc', function getUserProfile (task) {
 		var token = task._prefetch.token;
 
 		var preEmit = function (entry) {
@@ -73,15 +108,19 @@ function instagram (slave, task, preEmit) {
 			return entry;
 		};
 
-		return instagram (this, task, preEmit).getUser (task.url);
+		return instagram (this, task, preEmit).getUserProfile (task.url);
 	})
 
-	.use ('urn:fos:sync:feature/e0e67af0321511e3be1c394bd9f8d2fc', function getTagPhotos (task) {
-		return instagram (this, task).getTagPhotos (task.url);	
+	.use ('urn:fos:sync:feature/e0e67af0321511e3be1c394bd9f8d2fc', function getMediaByTag (task) {
+		return instagram (this, task).getMediaByTag (task.url);	
 	})
 
-	.use ('urn:fos:sync:feature/fb1b28d0321511e3be1c394bd9f8d2fc', function getProfilePhotos (task) {
-		return instagram (this, task).getProfilePhotos (task.url);	
+	.use ('urn:fos:sync:feature/fb1b28d0321511e3be1c394bd9f8d2fc', function getMediaByUser (task) {
+		return instagram (this, task).getMediaByUser (task.url);	
+	})
+
+	.use ('urn:fos:sync:feature/ea86b3c0326c11e38d94a7656a4e4a0a', function getMedia (task) {
+		return instagram (this, task).getMedia (task.url);	
 	})
 
 	.use ('urn:fos:sync:feature/cf8e0520321511e3be1c394bd9f8d2fc', function reply (task) {
