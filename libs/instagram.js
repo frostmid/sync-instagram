@@ -73,13 +73,23 @@ _.extend (module.exports.prototype, {
 			.then (process);
 	},
 
-	post: function (endpoint, data) {
-		var url = this._appendToken (this.settings.base + endpoint);
-		return this.request ({
-			url: url,
-			method: 'post',
-			form: data
-		});	
+	reply: function (url, message, issue) {
+		var self = this,
+			url;
+
+		return self.get('/' + objectId)
+			.then(function (entry) {
+				var type = entry.type || (entry.metadata ? entry.metadata.type : null);
+
+				return self.post (url).then(function (entry) {
+					return self.get('/' + (entry.id || entry))
+						.then(function (entry) {
+							entry.ancestor = 'https://www.facebook.com/' + objectId;
+							entry.issue = issue;
+							self.entry (entry, 'comment');
+						});
+				});
+			});
 	},
 
 	entry: function (entry, type) {

@@ -111,24 +111,33 @@ function instagram (slave, task, preEmit) {
 		return instagram (this, task, preEmit).getUserProfile (task.url);
 	})
 
-	.use ('urn:fos:sync:feature/e0e67af0321511e3be1c394bd9f8d2fc', function getMediaByTag (task) {
-		return instagram (this, task).getMediaByTag (task.url);	
+	.use ('urn:fos:sync:feature/fb1b28d0321511e3be1c394bd9f8d2fc', function getMediaByUser (task) {
+		return instagram (this, task).getMediaByUser (task.url);
 	})
 
-	.use ('urn:fos:sync:feature/fb1b28d0321511e3be1c394bd9f8d2fc', function getMediaByUser (task) {
-		return instagram (this, task).getMediaByUser (task.url);	
+	.use ('urn:fos:sync:feature/e0e67af0321511e3be1c394bd9f8d2fc', function getMediaByTag (task) {
+		return instagram (this, task).getMediaByTag (task.url);
 	})
 
 	.use ('urn:fos:sync:feature/ea86b3c0326c11e38d94a7656a4e4a0a', function getMedia (task) {
-		return instagram (this, task).getMedia (task.url);	
+		return instagram (this, task).getMedia (task.url);
 	})
 
 	.use ('urn:fos:sync:feature/cf8e0520321511e3be1c394bd9f8d2fc', function reply (task) {
-		return null;	
+		return instagram (this, task).reply (task.url, task.content, task.issue);
 	})
 
 	.use ('urn:fos:sync:feature/bba595a0321511e3be1c394bd9f8d2fc', function explain (task) {
-		return null;	
+		
+		if (task.url.match (/statigr\.am\/(\w+)/)) {
+			return instagram (this, task).getMediaByUser (task.url);
+		} else if (task.url.match (/\/p\/(\d+_\d+)\/?$/)) {
+			return instagram (this, task).getMedia (task.url);
+		} else if (task.url.match (/\/tag\/(\w+)\/?$/)) {
+			return instagram (this, task).getMediaByTag (task.url);
+		} else {
+			throw new Error ('None exist explain for url: ' + task.url);
+		}
 	})
 
 	.fail (function (error) {
