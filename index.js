@@ -39,7 +39,7 @@ var parse = {
 			'entry-type': 'urn:fos:sync:entry-type/93b79c40321611e3be1c394bd9f8d2fc',
 			'author': 'http://statigr.am/' + entry.user.username,
 			'content': (entry.caption && entry.caption.text) ? entry.caption.text : null,
-			'created_at': entry.created_time,
+			'created_at': entry.created_time * 1000,
 			'attached': {
 				'photos': [entry.images.thumbnail.url]
 			},
@@ -57,7 +57,7 @@ var parse = {
 			'entry-type': 'urn:fos:sync:entry-type/28dd0a60326411e38d94a7656a4e4a0a',
 			'author': 'http://statigr.am/' + entry.user.username,
 			'content': (entry.caption && entry.caption.text) ? entry.caption.text : null,
-			'created_at': entry.created_time,
+			'created_at': entry.created_time * 1000,
 			'attached': {
 				'video': [entry.videos.standard_resolution.url]
 			},
@@ -76,7 +76,7 @@ var parse = {
 			'author': 'http://statigr.am/' + entry.from.username,
 			'ancestor': 'http://statigr.am/p/' + entry.ancestor,
 			'content': entry.text || null,
-			'created_at': entry.created_time
+			'created_at': entry.created_time * 1000
 		}
 	}
 };

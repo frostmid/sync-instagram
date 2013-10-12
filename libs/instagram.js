@@ -92,7 +92,7 @@ _.extend (module.exports.prototype, {
 				entry.ancestor = parentId;
 				entry.issue = issue;
 
-				console.log ('eeeeeeeeeeeeeeeeeeeeee', entry);
+				//console.log ('eeeeeeeeeeeeeeeeeeeeee', entry);
 
 				return self.entry (entry, 'comment');
 			});
