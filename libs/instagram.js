@@ -103,8 +103,6 @@ _.extend (module.exports.prototype, {
 			parser = this.settings.parse [type],
 			parsed;
 
-		entry.id = entry.object_id ? entry.object_id : entry.id;
-
 		if (typeof parser == 'function') {
 			try {
 				parsed = parser.call (this, entry);
@@ -140,7 +138,9 @@ _.extend (module.exports.prototype, {
 			tmp = url ? url.match (/statigr\.am\/(\w+)\/?/) : null,
 			userId = tmp ? tmp [1] : 'self';
 
-		if (userId != 'self') {
+		if (userId == 'self') {
+			return self.get ('/users/' + userId);
+		} else {
 			return self.get ('/users/search?q=' + userId)
 				.then (function (results) {
 					return _.find(results, function (item) {
@@ -148,11 +148,10 @@ _.extend (module.exports.prototype, {
 					});
 				})
 				.then (function (entry) {
-					return self.get ('/users/' + entry.id);
+					//return self.get ('/users/' + entry.id);
+					return entry;
 				}); 
 		}
-
-		return self.get ('/users/' + userId);
 	},
 
 	getUserProfile: function (url) {
