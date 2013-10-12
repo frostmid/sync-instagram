@@ -33,6 +33,15 @@ _.extend (module.exports.prototype, {
 			});
 	},
 
+	post: function (endpoint, data) {
+		var url = this._appendToken (this.settings.base + endpoint);
+		return this.request ({
+			url: url,
+			method: 'post',
+			form: data
+		});	
+	},
+
 	list: function (endpoint, iterator) {
 		var self = this;
 
@@ -51,8 +60,8 @@ _.extend (module.exports.prototype, {
 			if (results.data) {
 				promises = _.map (
 					_.filter (results.data, function (entry) {
-						var created_time = entry.created_time ? ((new Date (entry.created_time)).getTime ()) : null,
-							scrapeStart = self.settings.scrapeStart;
+						var created_time = entry.created_time,
+							scrapeStart = self.settings.scrapeStart / 1000;
 
 						return (created_time && scrapeStart && (created_time >= scrapeStart));
 					}),
@@ -69,26 +78,23 @@ _.extend (module.exports.prototype, {
 			return Q.all (promises);
 		};
 
-		return this.get (endpoint)
+		return this.request (this._appendToken (this.settings.base + endpoint))
 			.then (process);
 	},
 
 	reply: function (url, message, issue) {
 		var self = this,
-			url;
+			tmp = url.match (/\/p\/(\d+_\d+)\/?$/),
+			parentId = (tmp && tmp [1]) ? tmp [1] : null;
 
-		return self.get('/' + objectId)
+		return self.post ('/media/' + parentId + '/comments', {text: message})
 			.then(function (entry) {
-				var type = entry.type || (entry.metadata ? entry.metadata.type : null);
+				entry.ancestor = parentId;
+				entry.issue = issue;
 
-				return self.post (url).then(function (entry) {
-					return self.get('/' + (entry.id || entry))
-						.then(function (entry) {
-							entry.ancestor = entry.id;
-							entry.issue = issue;
-							return self.entry (entry, 'comment');
-						});
-				});
+				console.log ('eeeeeeeeeeeeeeeeeeeeee', entry);
+
+				return self.entry (entry, 'comment');
 			});
 	},
 
@@ -131,7 +137,7 @@ _.extend (module.exports.prototype, {
 
 	_getUserEntry: function (url) {
 		var self = this,
-			tmp = url.match (/statigr\.am\/(\w+)\/?/),
+			tmp = url ? url.match (/statigr\.am\/(\w+)\/?/) : null,
 			userId = tmp ? tmp [1] : 'self';
 
 		if (userId != 'self') {
@@ -177,7 +183,7 @@ _.extend (module.exports.prototype, {
 			tmp = url.match (/\/tag\/(\w+)\/?/),
 			tagName = tmp ? tmp [1] : null;
 
-		return self.list ('tags/' + tagName + '/media/recent', function (entry) {
+		return self.list ('/tags/' + tagName + '/media/recent', function (entry) {
 			return Promises.all ([
 				self.entry (entry),
 				self.getComments (entry)
@@ -188,10 +194,23 @@ _.extend (module.exports.prototype, {
 	getComments: function (entry) {
 		var self = this;
 
-		return self.list ('/media/' + etry.id + '/comments', function (item) {
+		return self.list ('/media/' + entry.id + '/comments', function (item) {
 			item.ancestor = entry.id;
 
 			return self.entry (item, 'comment');
+		});
+	},
+
+	getMedia: function (url) {
+		var self = this,
+			tmp = url.match (/\/p\/(\d+_\d+)/),
+			objectId = tmp ? tmp [1] : null;
+
+		return self.get ('/media/' + objectId, function (entry) {
+			return Promises.all ([
+				self.entry (entry),
+				self.getComments (entry)
+			]);
 		});
 	}
 
