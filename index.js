@@ -47,7 +47,7 @@ var parse = {
 			'metrics': {
 				'comments': entry.comments.count,
 				'likes': entry.likes.count
-			}
+			},
 			'show-url': entry.link
 		}
 	},
@@ -65,7 +65,7 @@ var parse = {
 			'metrics': {
 				'comments': entry.comments.count,
 				'likes': entry.likes.count
-			}
+			},
 			'show-url': entry.link
 		}
 	},
