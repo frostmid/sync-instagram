@@ -21,7 +21,14 @@ _.extend (module.exports.prototype, {
 			throw new Error ('Request requires url to request: ' + url);
 		}
 
-		return request (url);
+		return request (url)
+			.then (function (response) {
+				if (response.meta && response.meta.code != '200') {
+					throw new Error (response.meta.error_type + '. ' + response.meta.error_message);
+				}
+
+				return response;
+			});
 	},
 
 	get: function (endpoint) {
@@ -92,6 +99,7 @@ _.extend (module.exports.prototype, {
 				entry.ancestor = parentId;
 				entry.issue = issue;
 
+				//entry.show_url = null;
 				//console.log ('eeeeeeeeeeeeeeeeeeeeee', entry);
 
 				return self.entry (entry, 'comment');
@@ -195,6 +203,7 @@ _.extend (module.exports.prototype, {
 
 		return self.list ('/media/' + entry.id + '/comments', function (item) {
 			item.ancestor = entry.id;
+			item.show_url = entry.link;
 
 			return self.entry (item, 'comment');
 		});

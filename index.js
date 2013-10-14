@@ -21,7 +21,8 @@ var parse = {
 			'nickname': entry.username,
 			'avatar': entry.profile_picture,
 			'about': entry.bio,
-			'site': entry.website
+			'site': entry.website,
+			'show-url': 'http://www.instagram.com/' + entry.username
 		}
 	},
 
@@ -47,7 +48,7 @@ var parse = {
 				'comments': entry.comments.count,
 				'likes': entry.likes.count
 			}
-			//'show-url': entry.link
+			'show-url': entry.link
 		}
 	},
 
@@ -65,7 +66,7 @@ var parse = {
 				'comments': entry.comments.count,
 				'likes': entry.likes.count
 			}
-			//'show-url': entry.link
+			'show-url': entry.link
 		}
 	},
 
@@ -76,7 +77,8 @@ var parse = {
 			'author': 'http://statigr.am/' + entry.from.username,
 			'ancestor': 'http://statigr.am/p/' + entry.ancestor,
 			'content': entry.text || null,
-			'created_at': entry.created_time
+			'created_at': entry.created_time,
+			'show-url': entry.show_url || null
 		}
 	}
 };
