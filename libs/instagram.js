@@ -1,7 +1,8 @@
 var	_ = require ('lodash'),
 	Q = require ('q'),
 	Promises = require ('vow'),
-	request = require ('fos-request');
+	rateLimit = require ('fun-rate-limit'),
+	request = rateLimit.promise (require ('fos-request'), 500);
 
 module.exports = function Instagram (settings) {
 	this.settings = _.extend ({}, this.settings, settings);
@@ -143,10 +144,10 @@ _.extend (module.exports.prototype, {
 
 	_getUserEntry: function (url) {
 		var self = this,
-			tmp = url ? url.match (/statigr\.am\/(\w+)\/?/) : null,
+			tmp = url ? url.match (/statigr\.am\/(?:(?:user\/)?(\w+))\/?/) : null,
 			userId = tmp ? tmp [1] : 'self';
 
-		if (userId == 'self') {
+		if ((parseInt(userId) == userId) || (userId == 'self')) {
 			return self.get ('/users/' + userId);
 		} else {
 			return self.get ('/users/search?q=' + userId)
