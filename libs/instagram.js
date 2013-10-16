@@ -2,7 +2,7 @@ var	_ = require ('lodash'),
 	Q = require ('q'),
 	Promises = require ('vow'),
 	rateLimit = require ('fun-rate-limit'),
-	request = rateLimit.promise (require ('fos-request'), 800);
+	request = require ('fos-request');
 
 module.exports = function Instagram (settings) {
 	this.settings = _.extend ({}, this.settings, settings);
@@ -22,13 +22,17 @@ _.extend (module.exports.prototype, {
 			throw new Error ('Request requires url to request: ' + url);
 		}
 
-		return request (url)
+		return request ({url: url, returnResponse: true})
 			.then (function (response) {
-				if (response.meta && response.meta.code != '200') {
-					throw new Error (response.meta.error_type + '. ' + response.meta.error_message);
+				var body = JSON.parse (response.body);
+
+				if (body.meta && body.meta.code != '200') {
+					throw new Error (body.meta.error_type + '. ' + body.meta.error_message);
 				}
 
-				return response;
+				//console.log ('heeeeeeeeeeeeeeeeeaders', response.body);
+
+				return body;
 			});
 	},
 
@@ -138,8 +142,7 @@ _.extend (module.exports.prototype, {
 		var q = (url.indexOf ('?') === -1) ? '?' : '&';
 
 		return url + q +
-			'access_token=' + this.settings.accessToken +
-			'&regionId=' + this.settings.locale;
+			'access_token=' + this.settings.accessToken;
 	},
 
 	_getUserEntry: function (url) {
@@ -215,12 +218,13 @@ _.extend (module.exports.prototype, {
 			tmp = url.match (/\/p\/(\d+_\d+)/),
 			objectId = tmp ? tmp [1] : null;
 
-		return self.get ('/media/' + objectId, function (entry) {
-			return Promises.all ([
-				self.entry (entry),
-				self.getComments (entry)
-			]);
-		});
+		return self.get ('/media/' + objectId)
+			.then(function (entry) {
+				return Promises.all ([
+					self.entry (entry),
+					self.getComments (entry)
+				]);
+			});
 	}
 
 });
