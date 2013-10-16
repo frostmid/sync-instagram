@@ -101,7 +101,7 @@ function instagram (slave, task, preEmit) {
 
 (new Slave ({
 	title: 'instagram api',
-	version: '0.1.1'
+	version: '0.1.3'
 }))
 	.use ('urn:fos:sync:feature/8086b260321511e3be1c394bd9f8d2fc', function getUserProfile (task) {
 		var token = task._prefetch.token;
