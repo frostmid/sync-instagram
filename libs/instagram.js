@@ -2,7 +2,7 @@ var	_ = require ('lodash'),
 	Q = require ('q'),
 	Promises = require ('vow'),
 	rateLimit = require ('fun-rate-limit'),
-	request = require ('fos-request');
+	request = rateLimit.promise (require ('fos-request'), 800);
 
 module.exports = function Instagram (settings) {
 	this.settings = _.extend ({}, this.settings, settings);
@@ -30,7 +30,9 @@ _.extend (module.exports.prototype, {
 					throw new Error (body.meta.error_type + '. ' + body.meta.error_message);
 				}
 
-				//console.log ('heeeeeeeeeeeeeeeeeaders', response.body);
+				if (response.headers ['x-ratelimit-remaining'] <= 5) {
+					throw new Error ('X-RateLimit error');	
+				}
 
 				return body;
 			});
