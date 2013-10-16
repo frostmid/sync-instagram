@@ -2,7 +2,7 @@ var	_ = require ('lodash'),
 	Q = require ('q'),
 	Promises = require ('vow'),
 	rateLimit = require ('fun-rate-limit'),
-	request = rateLimit.promise (require ('fos-request'), 500);
+	request = rateLimit.promise (require ('fos-request'), 800);
 
 module.exports = function Instagram (settings) {
 	this.settings = _.extend ({}, this.settings, settings);
