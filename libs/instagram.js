@@ -188,7 +188,7 @@ _.extend (module.exports.prototype, {
 
 	getMediaByTag: function (url) {
 		var self = this,
-			tmp = url.match (/\/tag\/(\w+)\/?/),
+			tmp = url.match (/\/tag\/(.+)\/?/),
 			tagName = tmp ? tmp [1] : null;
 
 		return self.list ('/tags/' + tagName + '/media/recent', function (entry) {

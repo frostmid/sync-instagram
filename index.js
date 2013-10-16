@@ -101,7 +101,7 @@ function instagram (slave, task, preEmit) {
 
 (new Slave ({
 	title: 'instagram api',
-	version: '0.0.1'
+	version: '0.1.0'
 }))
 	.use ('urn:fos:sync:feature/8086b260321511e3be1c394bd9f8d2fc', function getUserProfile (task) {
 		var token = task._prefetch.token;
@@ -131,11 +131,9 @@ function instagram (slave, task, preEmit) {
 	})
 
 	.use ('urn:fos:sync:feature/bba595a0321511e3be1c394bd9f8d2fc', function explain (task) {
-		if (task.url.match (/\/p\/(\d+_\d+)\/?$/)) {
+		if (task.url.match (/\/p\/(\d+_\d+)/)) {
 			return instagram (this, task).getMedia (task.url);
-		} else if (task.url.match (/\/tag\/(\w+)\/?$/)) {
-			return instagram (this, task).getMediaByTag (task.url);
-		} else if (task.url.match (/statigr\.am\/(\w+)/)) {
+		} else if (task.url.match (/statigr\.am\/(.+)/)) {
 			return instagram (this, task).getUserProfile (task.url);
 		} else {
 			throw new Error ('None exist explain for url: ' + task.url);
